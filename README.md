@@ -2,7 +2,21 @@
 
 An on-premises solution for docker registry.
 
-## Registry Proxy Configurations
+## Pull-through Cache Configurations
+
+The default behavior of docker registry is to only serve the images that it
+locally has but we can use it as a pull-through cache so that the registry gets
+the missing images automatically from Docker hub. This configuration is needed
+to set up a pull-through cache.
+```yaml
+proxy:
+  remoteurl: https://registry-1.docker.co
+  username: [username]
+  password: [password]
+```
+`username` and `password` fields are not mandatory.
+
+## Proxy Configurations
 
 In case a proxy access was needed for docker registry to work we can use
 this configuration in `~/.docker/config.json`.
