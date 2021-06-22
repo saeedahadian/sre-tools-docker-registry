@@ -35,9 +35,9 @@ should have this daemon configuration in `/etc/docker/daemon.json`.
 
 **Important Notes:**
 
-# If REGISTRY\_ADDRESS is a url, it could only be the root address without
++ If REGISTRY\_ADDRESS is a url, it could only be the root address without
   specifying any path e.g. http://172.16.17.38 is accepted but
   http://172.16.17.38/v2 is not an accepted mirror url.
 
-# Port number could be used if the registry is not on the root address e.g.
++ Port number could be used if the registry is not on the root address e.g.
   http://172.16.17.38:5000 is an accepted mirror address.
