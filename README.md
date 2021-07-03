@@ -16,6 +16,19 @@ proxy:
 ```
 `username` and `password` fields are not mandatory.
 
+### Using multiple hubs
+
+Some images are either not present or outdated on Docker Hub and we need to
+pull them from another registry with a different url. For instance, Elastic
+Stack images are maintained on `docker.elastic.co`. For this purpose, we
+create a new container to specifically pull images from Elastic hub. We should
+also use NginX to route all requests for Elastic images to this particular
+container.
+```yaml
+proxy:
+  remoteurl: https://docker.elastic.co
+```
+
 ## Proxy Configurations
 
 In case a proxy access was needed for docker registry to work we can use
