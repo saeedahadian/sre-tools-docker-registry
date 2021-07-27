@@ -34,8 +34,6 @@ services:
     <<: *registry
     container_name: registry-4
     hostname: registry-4
-    ports:
-      - "9208:5000"
 
   registry-5:
     <<: *registry

@@ -16,6 +16,17 @@ proxy:
 ```
 `username` and `password` fields are not mandatory.
 
+#### Connection refused!
+
+When registry could not connect to docker hub's remote address, either reload
+your docker engine or change the DNS of the server to something like Quad9.
+
+```bash
+# /etc/resolv.conf
+
+nameserver 9.9.9.9
+```
+
 ### Using multiple hubs
 
 Some images are either not present or outdated on Docker Hub and we need to
