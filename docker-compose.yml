@@ -1,101 +1,51 @@
 version: '3'
 
+x-hub-registry-common: &registry
+  image: registry:2
+  expose:
+    - "5000"
+  environment:
+    #REGISTRY_AUTH: htpasswd
+    #REGISTRY_AUTH_HTPASSWD_REALM: Registry
+    #REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
+    REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY: /data
+  volumes:
+    #- ./auth:/auth
+    - data:/data
+    - ./configs/registry-config.yml:/etc/docker/registry/config.yml
+
 services:
-  hub-cache-1:
-    image: registry:2
-    container_name: hub-cache-1
-    hostname: hub-cache-1
-    expose:
-      - "5000"
-    environment:
-            #REGISTRY_AUTH: htpasswd
-            #REGISTRY_AUTH_HTPASSWD_REALM: Registry
-            #REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
-      REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY: /data
-    volumes:
-            #- ./auth:/auth
-      - ./data:/data
-      - ./configs/hub-cache-config.yml:/etc/docker/registry/config.yml
+  registry-1:
+    <<: *registry
+    container_name: registry-1
+    hostname: registry-1
 
-  hub-cache-2:
-    image: registry:2
-    container_name: hub-cache-2
-    hostname: hub-cache-2
-    expose:
-      - "5000"
-    environment:
-            #REGISTRY_AUTH: htpasswd
-            #REGISTRY_AUTH_HTPASSWD_REALM: Registry
-            #REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
-      REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY: /data
-    volumes:
-            #- ./auth:/auth
-      - ./data:/data
-      - ./configs/hub-cache-config.yml:/etc/docker/registry/config.yml
+  registry-2:
+    <<: *registry
+    container_name: registry-2
+    hostname: registry-2
 
-  hub-cache-3:
-    image: registry:2
-    container_name: hub-cache-3
-    hostname: hub-cache-3
-    expose:
-      - "5000"
-    environment:
-            #REGISTRY_AUTH: htpasswd
-            #REGISTRY_AUTH_HTPASSWD_REALM: Registry
-            #REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
-      REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY: /data
-    volumes:
-            #- ./auth:/auth
-      - ./data:/data
-      - ./configs/hub-cache-config.yml:/etc/docker/registry/config.yml
+  registry-3:
+    <<: *registry
+    container_name: registry-3
+    hostname: registry-3
 
-  hub-cache-4:
-    image: registry:2
-    container_name: hub-cache-4
-    hostname: hub-cache-4
-    expose:
-      - "5000"
-    environment:
-            #REGISTRY_AUTH: htpasswd
-            #REGISTRY_AUTH_HTPASSWD_REALM: Registry
-            #REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
-      REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY: /data
-    volumes:
-            #- ./auth:/auth
-      - ./data:/data
-      - ./configs/hub-cache-config.yml:/etc/docker/registry/config.yml
+  registry-4:
+    <<: *registry
+    container_name: registry-4
+    hostname: registry-4
+    ports:
+      - "9208:5000"
 
-  elastic-cache-1:
-    image: registry:2
-    container_name: elastic-cache-1
-    hostname: elastic-cache-1
-    expose:
-      - "5000"
-    environment:
-            #REGISTRY_AUTH: htpasswd
-            #REGISTRY_AUTH_HTPASSWD_REALM: Registry
-            #REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
-      REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY: /data
+  registry-5:
+    <<: *registry
+    container_name: registry-5
+    hostname: registry-5
+    ports:
+      - "5001:5001"
+      - "9201:5001"
     volumes:
-            #- ./auth:/auth
-      - ./data:/data
-      - ./configs/elastic-cache-config.yml:/etc/docker/registry/config.yml
-
-  elastic-cache-2:
-    image: registry:2
-    container_name: elastic-cache-2
-    hostname: elastic-cache-2
-    expose:
-      - "5000"
-    environment:
-            #REGISTRY_AUTH: htpasswd
-            #REGISTRY_AUTH_HTPASSWD_REALM: Registry
-            #REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
-      REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY: /data
-    volumes:
-            #- ./auth:/auth
-      - ./data:/data
-      - ./configs/elastic-cache-config.yml:/etc/docker/registry/config.yml
+      - ./configs/elastic-config.yml:/etc/docker/registry/config.yml
 
   reverse-proxy:
     image: nginx:stable-alpine
@@ -103,12 +53,15 @@ services:
     hostname: nginx
     ports:
       - "5000:5000"
+      - "9200:5000"
     volumes:
       - ./configs/nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
-      - hub-cache-1
-      - hub-cache-2
-      - hub-cache-3
-      - hub-cache-4
-      - elastic-cache-1
-      - elastic-cache-2
+      - registry-1
+      - registry-2
+      - registry-3
+      - registry-4
+
+volumes:
+  data:
+    name: docker-registry
