@@ -1,7 +1,8 @@
-version: '3'
+version: '3.9'
 
-x-hub-registry-common: &registry
+x-registry-common: &registry-common
   image: registry:2
+  restart: unless-stopped
   expose:
     - "5000"
   environment:
@@ -9,56 +10,58 @@ x-hub-registry-common: &registry
     #REGISTRY_AUTH_HTPASSWD_REALM: Registry
     #REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.password
     REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY: /data
+
+x-proxy-registry: &proxy-registry-common
+  <<: *registry-common
   volumes:
     #- ./auth:/auth
     - data:/data
     - ./configs/registry-config.yml:/etc/docker/registry/config.yml
 
 services:
-  registry-1:
-    <<: *registry
-    container_name: registry-1
+  proxy-registry-1:
+    <<: *proxy-registry-common
+    container_name: proxy-registry-1
     hostname: registry-1
 
-  registry-2:
-    <<: *registry
-    container_name: registry-2
+  proxy-registry-2:
+    <<: *proxy-registry-common
+    container_name: proxy-registry-2
     hostname: registry-2
 
-  registry-3:
-    <<: *registry
-    container_name: registry-3
+  proxy-registry-3:
+    <<: *proxy-registry-common
+    container_name: proxy-registry-3
     hostname: registry-3
 
-  registry-4:
-    <<: *registry
-    container_name: registry-4
+  proxy-registry-4:
+    <<: *proxy-registry-common
+    container_name: proxy-registry-4
     hostname: registry-4
 
-  registry-5:
-    <<: *registry
-    container_name: registry-5
-    hostname: registry-5
+  ai-registry:
+    <<: *registry-common
+    container_name: ai-registry
+    hostname: registry
     ports:
-      - "5001:5001"
-      - "9201:5001"
+      - "9200:5000"
     volumes:
-      - ./configs/elastic-config.yml:/etc/docker/registry/config.yml
+      #- ./auth:/auth
+      - data:/data
 
   reverse-proxy:
     image: nginx:stable-alpine
     container_name: reverse-proxy
     hostname: nginx
     ports:
-      - "5000:5000"
-      - "9200:5000"
+      - "9201:5000"
     volumes:
       - ./configs/nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
-      - registry-1
-      - registry-2
-      - registry-3
-      - registry-4
+      - proxy-registry-1
+      - proxy-registry-2
+      - proxy-registry-3
+      - proxy-registry-4
 
 volumes:
   data:
